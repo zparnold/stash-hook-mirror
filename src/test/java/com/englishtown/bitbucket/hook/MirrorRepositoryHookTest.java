@@ -144,6 +144,9 @@ public class MirrorRepositoryHookTest {
                 .thenReturn(mirrorRepoUrlSsh)
                 .thenReturn(mirrorRepoUrlHttp);
 
+        when(settings.getString(eq(MirrorRepositoryHook.SETTING_PROXY_URL + "0"), eq("")))
+                .thenReturn("");
+
         when(settings.getString(eq(MirrorRepositoryHook.SETTING_USERNAME + "0"), eq("")))
                 .thenReturn("")
                 .thenReturn("")

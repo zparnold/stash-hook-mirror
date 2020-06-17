@@ -90,7 +90,7 @@ public class MirrorBucketProcessor implements BucketProcessor<MirrorRequest> {
                 new GitCommandExitHandler(i18nService, repository));
         ScmCommandBuilder<?> setProxy = scmService.createBuilder(repository)
                 .command("config");
-        if (!settings.proxyUrl.isEmpty()){
+        if (settings.proxyUrl != null && !settings.proxyUrl.isEmpty()){
             setProxy.argument("--set")
                     .argument("https.proxy")
                     .argument(settings.proxyUrl);
