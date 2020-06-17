@@ -12,4 +12,5 @@ class MirrorSettings implements Serializable {
     boolean tags;
     boolean notes;
     boolean atomic;
+    String proxyUrl;
 }

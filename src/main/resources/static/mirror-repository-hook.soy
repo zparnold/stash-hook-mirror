@@ -101,6 +101,14 @@
                 ]
             ] /}
         {/call}
-
+        {call aui.form.textField}
+            {param id: 'proxyUrl' + $index /}
+            {param value: $config['proxyUrl' + $index] /}
+            {param labelContent}
+                {getText('mirror-repository-hook.proxyUrl.label')}
+            {/param}
+            {param descriptionText: getText('mirror-repository-hook.proxyUrl.description') /}
+            {param errorTexts: $errors ? $errors['proxyUrl' + $index] : null /}
+        {/call}
     </fieldset>
 {/template}

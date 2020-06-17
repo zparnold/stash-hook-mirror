@@ -22,6 +22,8 @@ import javax.annotation.Nonnull;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MirrorRepositoryHook implements PostRepositoryHook<RepositoryHookRequest>, SettingsValidator {
 
@@ -35,6 +37,7 @@ public class MirrorRepositoryHook implements PostRepositoryHook<RepositoryHookRe
     static final String SETTING_TAGS = "tags";
     static final String SETTING_NOTES = "notes";
     static final String SETTING_ATOMIC = "atomic";
+    static final String SETTING_PROXY_URL = "proxyUrl";
 
     /**
      * Trigger types that don't cause a mirror to happen
@@ -158,6 +161,7 @@ public class MirrorRepositoryHook implements PostRepositoryHook<RepositoryHookRe
 
                 MirrorSettings ms = new MirrorSettings();
                 ms.mirrorRepoUrl = settings.getString(SETTING_MIRROR_REPO_URL + suffix, "");
+                ms.proxyUrl = settings.getString(SETTING_PROXY_URL + suffix, "");
                 ms.username = settings.getString(SETTING_USERNAME + suffix, "");
                 ms.password = settings.getString(SETTING_PASSWORD + suffix, "");
                 ms.refspec = (settings.getString(SETTING_REFSPEC + suffix, ""));
@@ -225,6 +229,13 @@ public class MirrorRepositoryHook implements PostRepositoryHook<RepositoryHookRe
                 errors.addFieldError(SETTING_REFSPEC + ms.suffix, "A refspec should be in the form <src>:<dest>.");
             }
         }
+        //Validate that the proxy URL if filled in is a valid url
+        if (!ms.proxyUrl.isEmpty()){
+            Pattern p = Pattern.compile("(https?://.*):(\\d*)\\/?(.*)");
+            if (!p.matcher(ms.proxyUrl).find()){
+                errors.addFieldError(SETTING_PROXY_URL + ms.suffix, "This is not a valid proxy URL");
+            }
+        }
 
         return result;
     }
@@ -239,6 +250,7 @@ public class MirrorRepositoryHook implements PostRepositoryHook<RepositoryHookRe
             values.put(SETTING_TAGS + ms.suffix, ms.tags);
             values.put(SETTING_NOTES + ms.suffix, ms.notes);
             values.put(SETTING_ATOMIC + ms.suffix, ms.atomic);
+            values.put(SETTING_PROXY_URL + ms.suffix, ms.proxyUrl);
         }
 
         // Unfortunately the settings are stored in an immutable map, so need to cheat with reflection

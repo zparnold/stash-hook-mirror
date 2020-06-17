@@ -6,6 +6,7 @@ import com.atlassian.bitbucket.permission.Permission;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.repository.RepositoryService;
 import com.atlassian.bitbucket.scm.Command;
+import com.atlassian.bitbucket.scm.CommandOutputHandler;
 import com.atlassian.bitbucket.scm.ScmCommandBuilder;
 import com.atlassian.bitbucket.scm.ScmService;
 import com.atlassian.bitbucket.scm.git.command.GitCommandExitHandler;
@@ -85,6 +86,20 @@ public class MirrorBucketProcessor implements BucketProcessor<MirrorRequest> {
 
         String password = passwordEncryptor.decrypt(settings.password);
         String authenticatedUrl = getAuthenticatedUrl(settings.mirrorRepoUrl, settings.username, password);
+        PasswordHandler passwordHandler = new PasswordHandler(settings.password,
+                new GitCommandExitHandler(i18nService, repository));
+        ScmCommandBuilder<?> setProxy = scmService.createBuilder(repository)
+                .command("config");
+        if (!settings.proxyUrl.isEmpty()){
+            setProxy.argument("--set")
+                    .argument("https.proxy")
+                    .argument(settings.proxyUrl);
+            } else {
+            setProxy.argument("--unset")
+                    .argument("https.proxy");
+        }
+        Command<String> c = setProxy.build(passwordHandler);
+        c.call();
 
         // Call push command with the prune flag and refspecs for heads and tags
         // Do not use the mirror flag as pull-request refs are included
@@ -115,9 +130,6 @@ public class MirrorBucketProcessor implements BucketProcessor<MirrorRequest> {
         if (settings.notes) {
             builder.argument("+refs/notes/*:refs/notes/*");
         }
-
-        PasswordHandler passwordHandler = new PasswordHandler(settings.password,
-                new GitCommandExitHandler(i18nService, repository));
 
         Command<String> command = builder.errorHandler(passwordHandler)
                 .exitHandler(passwordHandler)
