@@ -43,7 +43,7 @@ public class MirrorBucketProcessorTest {
             password = "test-password";
             refspec = "+refs/heads/master:refs/heads/master +refs/heads/develop:refs/heads/develop";
             username = "test-user";
-
+            proxyUrl = "http://geoproxy.geo.msci.org:8080";
             atomic = true;
             notes = true;
             tags = true;
@@ -107,10 +107,10 @@ public class MirrorBucketProcessorTest {
         verify(builder).argument(eq("+refs/heads/develop:refs/heads/develop"));
         verify(builder).argument(eq("+refs/tags/*:refs/tags/*"));
         verify(builder).argument(eq("+refs/notes/*:refs/notes/*"));
-        verify(command).call();
+        verify(command, times(2)).call();
         verify(command).setTimeout(eq(Duration.ofSeconds(120L)));
         verify(passwordEncryptor).decrypt(eq(SETTINGS.password));
-        verify(scmService).createBuilder(same(repository));
+        verify(scmService, times(2)).createBuilder(same(repository));
     }
 
     @Test

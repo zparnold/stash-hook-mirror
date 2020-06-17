@@ -44,6 +44,7 @@ public class MirrorRepositoryHookTest {
     private final String password = "test-password";
     private final String refspec = "+refs/heads/master:refs/heads/master +refs/heads/develop:refs/heads/develop";
     private final String username = "test-user";
+    private final String proxyUrl = "http://geoproxy.geo.msci.org:8080";
 
     @Mock
     private BucketedExecutor<MirrorRequest> bucketedExecutor;
@@ -150,6 +151,12 @@ public class MirrorRepositoryHookTest {
                 .thenReturn("")
                 .thenReturn(username);
 
+        when(settings.getString(eq(MirrorRepositoryHook.SETTING_PROXY_URL + "0"), eq("")))
+                .thenReturn("")
+                .thenReturn("")
+                .thenReturn("")
+                .thenReturn(proxyUrl);
+
         when(settings.getString(eq(MirrorRepositoryHook.SETTING_PASSWORD + "0"), eq("")))
                 .thenReturn("")
                 .thenReturn("")
@@ -177,6 +184,7 @@ public class MirrorRepositoryHookTest {
         verify(errors, never()).addFieldError(eq(MirrorRepositoryHook.SETTING_USERNAME + "0"), anyString());
         verify(errors, never()).addFieldError(eq(MirrorRepositoryHook.SETTING_PASSWORD + "0"), anyString());
         verify(errors).addFieldError(eq(MirrorRepositoryHook.SETTING_REFSPEC + "0"), anyString());
+
 
         errors = mock(SettingsValidationErrors.class);
         hook.validate(settings, errors, scope);
